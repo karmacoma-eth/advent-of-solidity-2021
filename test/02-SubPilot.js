@@ -1,8 +1,8 @@
 const { expect } = require("chai");
 
-describe("SonarSweep contract", function () {
-  let SonarSweepDeployer;
-  let sonarSweep;
+describe("SubPilot contract", function () {
+  let SubPilotDeployer;
+  let subPilot;
 
   before(async function () {
     SubPilotDeployer = await ethers.getContractFactory("SubPilot");

@@ -1,6 +1,6 @@
 const { expect } = require("chai");
 
-describe("SonarSweep contract", function () {
+describe("GammaEpsilon contract", function () {
   let GammaEpsilonDeployer;
   let gammaEpsilon;
 
