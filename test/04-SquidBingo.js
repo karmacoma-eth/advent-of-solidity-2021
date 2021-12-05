@@ -24,7 +24,7 @@ describe("SquidBingo contract", function () {
   });
 
 
-  it.only("https://adventofcode.com/2021/day/4#part2", async function () {
+  it("https://adventofcode.com/2021/day/4#part2", async function () {
     expect(await squidBingo.callStatic.letTheSquidWin(exampleData)).to.equal(1924);
     expect(await squidBingo.callStatic.letTheSquidWin(challengeData, { gasLimit: 10 ** 9})).to.equal(31892);
   });
