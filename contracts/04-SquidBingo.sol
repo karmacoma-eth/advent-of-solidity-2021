@@ -4,6 +4,8 @@ pragma solidity ^0.8.0;
 import "hardhat/console.sol";
 
 contract SquidBingo {
+    mapping (uint => bool) winningBoards;
+
     mapping(bytes1 => uint256) toInt;
 
     constructor() {
@@ -185,6 +187,36 @@ contract SquidBingo {
                 if (isWinningBoard(board)) {
                     console.log("winning board %d!", j);
                     return number * sumOfUnmarked(board);
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    function letTheSquidWin(string calldata input) public returns(uint) {
+        bytes[] memory lines = splitString(input, bytes1("\n"));
+        uint256[] memory numbers = readNumbersLine(lines[0]);
+        int256[5][5][] memory boards = readBoards(lines);
+        uint numWinningBoards = 0;
+
+        for (uint256 i = 0; i < numbers.length; i++) {
+            uint number = numbers[i];
+            console.log("playing number %d", number);
+
+            for (uint256 j = 0; j < boards.length; j++) {
+                int[5][5] memory board = boards[j];
+                mark(number, board);
+
+                if (!winningBoards[j] && isWinningBoard(board)) {
+                    console.log("found a new winning board %d!", j);
+                    winningBoards[j] = true;
+                    numWinningBoards++;
+
+                    if (numWinningBoards == boards.length) {
+                        console.log("board %d is the last winning board", j);
+                        return number * sumOfUnmarked(board);
+                    }
                 }
             }
         }

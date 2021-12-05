@@ -20,11 +20,13 @@ describe("SquidBingo contract", function () {
 
     expect(await squidBingo.playGame(exampleData)).to.equal(4512);
     expect(await squidBingo.playGame(challengeData, { gasLimit: 10 ** 8})).to.equal(10680);
+
   });
 
 
-  it("https://adventofcode.com/2021/day/4#part2", async function () {
-    // TODO
+  it.only("https://adventofcode.com/2021/day/4#part2", async function () {
+    expect(await squidBingo.callStatic.letTheSquidWin(exampleData)).to.equal(1924);
+    expect(await squidBingo.callStatic.letTheSquidWin(challengeData, { gasLimit: 10 ** 9})).to.equal(31892);
   });
 
   let exampleData =
