@@ -83,8 +83,112 @@ contract SquidBingo {
         }
     }
 
-    // TODO: read the starting grids
-    // TODO: process the random numbers and mark the grids
-    // TODO: detect if there is a winning grid
-    // TODO: compute the sum of all the unmarked numbers
+    function readBoardLine(bytes memory line) public view returns (int256[5] memory numbers) {
+        bytes[] memory tokens = split(line, bytes1(" "));
+        uint currNum = 0;
+        for (uint256 i = 0; i < tokens.length; i++) {
+            if (tokens[i].length > 0) {
+                numbers[currNum++] = int(bytesToUInt(tokens[i]));
+            }
+        }
+    }
+
+    function readBoard(bytes[] memory lines, uint lineNumber) public view returns (int256[5][5] memory numbers) {
+        numbers[0] = readBoardLine(lines[lineNumber]);
+        numbers[1] = readBoardLine(lines[lineNumber + 1]);
+        numbers[2] = readBoardLine(lines[lineNumber + 2]);
+        numbers[3] = readBoardLine(lines[lineNumber + 3]);
+        numbers[4] = readBoardLine(lines[lineNumber + 4]);
+    }
+
+    function readBoards(bytes[] memory lines) public view returns (int256[5][5][] memory boards) {
+        uint numBoards = lines.length / 6;
+        boards = new int256[5][5][](numBoards);
+
+        for (uint256 i = 0; i < numBoards; i++) {
+            boards[i] = readBoard(lines, i * 6 + 2);
+        }
+    }
+
+    function mark(uint number, int[5][5] memory board) public pure returns (bool marked) {
+        for (uint256 i = 0; i < 5; i++) {
+            for (uint256 j = 0; j < 5; j++) {
+                if (board[i][j] == int(number)) {
+                    board[i][j] = ~board[i][j];
+                    marked = true;
+                }
+            }
+        }
+    }
+
+    function isWinningRow(int256[5] memory line) public pure returns (bool) {
+        for (uint256 i = 0; i < 5; i++) {
+            if (line[i] > 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    function isWinningColumn(int256[5][5] memory board, uint column) public pure returns (bool) {
+        for (uint256 i = 0; i < 5; i++) {
+            if (board[i][column] > 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    function isWinningBoard(int[5][5] memory board) public view returns (bool) {
+        for (uint256 i = 0; i < 5; i++) {
+            if (isWinningRow(board[i])) {
+                console.log("winning row %d", i);
+                return true;
+            }
+        }
+
+        for (uint256 i = 0; i < 5; i++) {
+            if (isWinningColumn(board, i)) {
+                console.log("winning column %d", i);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    function sumOfUnmarked(int[5][5] memory board) public pure returns (uint256 sum) {
+        for (uint256 i = 0; i < 5; i++) {
+            for (uint256 j = 0; j < 5; j++) {
+                if (board[i][j] > 0) {
+                    sum += uint256(board[i][j]);
+                }
+            }
+        }
+    }
+
+    function playGame(string calldata input) public view returns(uint) {
+        bytes[] memory lines = splitString(input, bytes1("\n"));
+        uint256[] memory numbers = readNumbersLine(lines[0]);
+        int256[5][5][] memory boards = readBoards(lines);
+
+        for (uint256 i = 0; i < numbers.length; i++) {
+            uint number = numbers[i];
+            console.log("playing number %d", number);
+
+            for (uint256 j = 0; j < boards.length; j++) {
+                int[5][5] memory board = boards[j];
+                mark(number, board);
+
+                if (isWinningBoard(board)) {
+                    console.log("winning board %d!", j);
+                    return number * sumOfUnmarked(board);
+                }
+            }
+        }
+
+        return 0;
+    }
 }
